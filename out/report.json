@@ -1,0 +1,264 @@
+{
+ "stats": {
+  "exact": {
+   "apng": {
+    "frames": 30,
+    "pixels": 50817,
+    "bytes": 3703,
+    "transients": 0,
+    "gran": "1/60 s 有理数精确 (num/den)",
+    "cumerr": "≤ 0.00 ms"
+   },
+   "gif": {
+    "frames": 30,
+    "pixels": 56612,
+    "bytes": 2038,
+    "transients": 0,
+    "gran": "1 cs = 10 ms，Bresenham 抖动分配",
+    "cumerr": "≤ 3.33 ms"
+   }
+  },
+  "size": {
+   "apng": {
+    "frames": 16,
+    "pixels": 40375,
+    "bytes": 2335,
+    "transients": 2,
+    "gran": "1 ms (den=1000)，供拆分瞬态帧",
+    "cumerr": "≤ 0.00 ms；另引入 2 个 ≤1 ms 瞬态"
+   },
+   "gif": {
+    "frames": 16,
+    "pixels": 40375,
+    "bytes": 1412,
+    "transients": 2,
+    "gran": "1 cs = 10 ms；拆分瞬态帧 = 10 ms",
+    "cumerr": "≤ 3.33 ms；另引入 2 个 ≤10 ms 瞬态"
+   }
+  }
+ },
+ "verify": [
+  {
+   "label": "src_input.png（转码输入）",
+   "ok": true,
+   "rows": [
+    {
+     "check": "输入端按混合/清背景/恢复旧画面求出完整图",
+     "ok": true,
+     "detail": "30/30 帧与参考画布逐像素一致"
+    }
+   ],
+   "stats": {
+    "max_cum_delay_err_ms": 0.0
+   }
+  },
+  {
+   "label": "loop_exact.png",
+   "ok": true,
+   "rows": [
+    {
+     "check": "帧数一致",
+     "ok": true,
+     "detail": "30 vs plan 30"
+    },
+    {
+     "check": "循环总时长",
+     "ok": true,
+     "detail": "500.00 ms (目标 500.00 ms)"
+    },
+    {
+     "check": "累计延迟误差",
+     "ok": true,
+     "detail": "max |Σactual-Σideal| = 0.00 ms"
+    },
+    {
+     "check": "逐帧像素精确",
+     "ok": true,
+     "detail": "30 精确 + 0 瞬态"
+    },
+    {
+     "check": "瞬态帧受控",
+     "ok": true,
+     "detail": "0 个，单个 ≤ 20 ms"
+    },
+    {
+     "check": "透明舷窗孔",
+     "ok": true,
+     "detail": "4 采样点 全部 alpha=0"
+    },
+    {
+     "check": "闪光后的船身",
+     "ok": true,
+     "detail": "3 个船身采样帧 全部命中"
+    },
+    {
+     "check": "末帧接回首帧",
+     "ok": true,
+     "detail": "第二循环逐帧画布与第一循环完全一致"
+    }
+   ],
+   "stats": {
+    "frames": 30,
+    "exact": 30,
+    "transient": 0,
+    "max_cum_delay_err_ms": 0.0
+   }
+  },
+  {
+   "label": "loop_exact.gif",
+   "ok": true,
+   "rows": [
+    {
+     "check": "帧数一致",
+     "ok": true,
+     "detail": "30 vs plan 30"
+    },
+    {
+     "check": "循环总时长",
+     "ok": true,
+     "detail": "500.00 ms (目标 500.00 ms)"
+    },
+    {
+     "check": "累计延迟误差",
+     "ok": true,
+     "detail": "max |Σactual-Σideal| = 3.33 ms"
+    },
+    {
+     "check": "逐帧像素精确",
+     "ok": true,
+     "detail": "30 精确 + 0 瞬态"
+    },
+    {
+     "check": "瞬态帧受控",
+     "ok": true,
+     "detail": "0 个，单个 ≤ 20 ms"
+    },
+    {
+     "check": "透明舷窗孔",
+     "ok": true,
+     "detail": "4 采样点 全部 alpha=0"
+    },
+    {
+     "check": "闪光后的船身",
+     "ok": true,
+     "detail": "3 个船身采样帧 全部命中"
+    },
+    {
+     "check": "末帧接回首帧",
+     "ok": true,
+     "detail": "第二循环逐帧画布与第一循环完全一致"
+    }
+   ],
+   "stats": {
+    "frames": 30,
+    "exact": 30,
+    "transient": 0,
+    "max_cum_delay_err_ms": 3.3333333333333335
+   }
+  },
+  {
+   "label": "loop_size.png",
+   "ok": true,
+   "rows": [
+    {
+     "check": "帧数一致",
+     "ok": true,
+     "detail": "16 vs plan 16"
+    },
+    {
+     "check": "循环总时长",
+     "ok": true,
+     "detail": "500.00 ms (目标 500.00 ms)"
+    },
+    {
+     "check": "累计延迟误差",
+     "ok": true,
+     "detail": "max |Σactual-Σideal| = 0.00 ms"
+    },
+    {
+     "check": "逐帧像素精确",
+     "ok": true,
+     "detail": "14 精确 + 2 瞬态"
+    },
+    {
+     "check": "瞬态帧受控",
+     "ok": true,
+     "detail": "2 个，单个 ≤ 20 ms"
+    },
+    {
+     "check": "透明舷窗孔",
+     "ok": true,
+     "detail": "4 采样点 全部 alpha=0"
+    },
+    {
+     "check": "闪光后的船身",
+     "ok": true,
+     "detail": "3 个船身采样帧 全部命中"
+    },
+    {
+     "check": "末帧接回首帧",
+     "ok": true,
+     "detail": "第二循环逐帧画布与第一循环完全一致"
+    }
+   ],
+   "stats": {
+    "frames": 16,
+    "exact": 14,
+    "transient": 2,
+    "max_cum_delay_err_ms": 0.0
+   }
+  },
+  {
+   "label": "loop_size.gif",
+   "ok": true,
+   "rows": [
+    {
+     "check": "帧数一致",
+     "ok": true,
+     "detail": "16 vs plan 16"
+    },
+    {
+     "check": "循环总时长",
+     "ok": true,
+     "detail": "500.00 ms (目标 500.00 ms)"
+    },
+    {
+     "check": "累计延迟误差",
+     "ok": true,
+     "detail": "max |Σactual-Σideal| = 3.33 ms"
+    },
+    {
+     "check": "逐帧像素精确",
+     "ok": true,
+     "detail": "14 精确 + 2 瞬态"
+    },
+    {
+     "check": "瞬态帧受控",
+     "ok": true,
+     "detail": "2 个，单个 ≤ 20 ms"
+    },
+    {
+     "check": "透明舷窗孔",
+     "ok": true,
+     "detail": "4 采样点 全部 alpha=0"
+    },
+    {
+     "check": "闪光后的船身",
+     "ok": true,
+     "detail": "3 个船身采样帧 全部命中"
+    },
+    {
+     "check": "末帧接回首帧",
+     "ok": true,
+     "detail": "第二循环逐帧画布与第一循环完全一致"
+    }
+   ],
+   "stats": {
+    "frames": 16,
+    "exact": 14,
+    "transient": 2,
+    "max_cum_delay_err_ms": 3.3333333333333335
+   }
+  }
+ ]
+}
