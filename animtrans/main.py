@@ -2,9 +2,10 @@
 APNG/GIF exports (two configs) -> independent verification -> review window."""
 import base64
 import json
+import random
 from pathlib import Path
 
-from . import scene, model, optimize, apng, gif, verify, report
+from . import scene, model, optimize, apng, gif, seek, verify, report
 
 OUT = Path("out")
 
@@ -55,6 +56,22 @@ def decode_file(path, fmt, loops):
     if fmt == "apng":
         return apng.composite(apng.read_apng(data), loops=loops)
     return gif.composite(gif.read_gif(data), loops=loops)
+
+
+def seek_check(frames, canvases):
+    """顺播 / 倒拖 / 随机索引三种顺序访问同一帧，与参考画布逐像素比对。"""
+    n = len(frames)
+    orders = (list(range(n)), list(range(n - 1, -1, -1)),
+              random.Random(20261121).sample(range(n), n))
+    for order in orders:
+        player = seek.RollbackPlayer(frames, scene.W, scene.H)
+        for j in order:
+            f = frames[j]
+            if f["transient"]:
+                continue
+            if player.render(j) != canvases[f["src"]]:
+                return False, f"帧 {j}（源帧 {f['src']}）失配"
+    return True, "三种顺序全部与参考画布逐像素一致"
 
 
 def stats_entry(cfg, fmt, frames, nbytes, vres):
@@ -152,12 +169,20 @@ def main():
         d1 = decode_file(path, fmt, 1)
         d2 = decode_file(path, fmt, 2)
         vres = verify.verify(d1, d2, frames, canvases, meta, path.name)
+        ok_seek, detail_seek = seek_check(frames, canvases)
+        vres["rows"].append(dict(check="跳帧三顺序访问同一帧逐像素一致（顺播/倒拖/随机索引）",
+                                 ok=ok_seek, detail=detail_seek))
+        partial = sum(1 for f in frames if f["w"] < scene.W or f["h"] < scene.H)
+        vres["rows"].append(dict(check="写出的动画仍保有局部更新矩形", ok=partial > 0,
+                                 detail=f"{partial}/{len(frames)} 帧为局部矩形"))
+        vres["ok"] = vres["ok"] and ok_seek and partial > 0
         verify_results.append(vres)
         stats[cfg][fmt] = stats_entry(cfg, fmt, frames, nbytes, vres)
 
     # 5) review window
     data = dict(
         meta=meta,
+        ref=[data_url(dict(w=scene.W, h=scene.H, img=c)) for c in canvases],
         plans={cfg: {fmt: manifest(plans[cfg][fmt], fmt) for fmt in ("apng", "gif")}
                for cfg in ("exact", "size")},
         stats=stats,
